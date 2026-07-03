@@ -1,0 +1,895 @@
+/* ═══════════════════════════════════════════════════
+   Kambyan GUI — Dashboard (Map + Sidebar)
+   ═══════════════════════════════════════════════════ */
+
+/* ── Main layout ── */
+.home {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+/* ── Leaflet map overrides ── */
+.leaflet-container {
+  width: 100%;
+  height: 100vh;
+  will-change: transform;
+  background: var(--bg-base) !important;
+}
+
+.leaflet-tile,
+.leaflet-image-layer {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* ── Map loading skeleton ── */
+.map-loading-skeleton {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-base);
+}
+
+.map-loading-skeleton p {
+  color: var(--text-muted);
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════════════
+   Sidebar
+   ═══════════════════════════════════════════════════ */
+.content-home-menu {
+  --sidebar-width: 280px;
+  flex: 0 0 280px;
+  width: 280px;
+  height: 100vh;
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border-subtle);
+  overflow: hidden auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  transition: flex-basis var(--duration-slow) var(--ease-out),
+              width var(--duration-slow) var(--ease-out),
+              opacity var(--duration-normal) ease;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-home-menu::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-collapsed .content-home-menu {
+  flex-basis: 0;
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Sidebar toggle button ── */
+.sidebar-toggle {
+  position: fixed;
+  top: 16px;
+  left: 290px;
+  z-index: 1300;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.sidebar-toggle:hover {
+  background: var(--bg-elevated);
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.sidebar-collapsed .sidebar-toggle {
+  left: 16px;
+  right: auto;
+}
+
+/* ── Leaflet zoom control position ── */
+.leaflet-top.leaflet-right {
+  top: 16px;
+  right: 16px;
+}
+
+/* ── Main content area ── */
+.content-home-content {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100vh;
+}
+
+/* ═══════════════════════════════════════════════════
+   Sidebar Menu Items
+   ═══════════════════════════════════════════════════ */
+.menu-list {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Dashboard header ── */
+#logo-menu {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 20px;
+  list-style-type: none;
+  margin: 0;
+  display: flex;
+  color: var(--text-muted);
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+#logo-menu:first-child {
+  min-height: 60px;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 700;
+  padding-right: 72px;
+  letter-spacing: 0;
+  text-transform: none;
+  border-bottom: 1px solid var(--border-subtle);
+  background: linear-gradient(135deg,
+    hsla(160, 70%, 46%, 0.06) 0%,
+    transparent 100%);
+}
+
+/* ── Menu buttons ── */
+.menu {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 8px;
+  list-style-type: none;
+  margin: 2px 0;
+  display: flex;
+  color: var(--text-secondary);
+  align-items: center;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast) ease;
+  position: relative;
+}
+
+.menu:hover {
+  background: hsla(0, 0%, 100%, 0.06);
+  color: var(--text-primary);
+}
+
+.menu:active {
+  background: hsla(0, 0%, 100%, 0.08);
+}
+
+.menu-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  border-radius: var(--radius-sm);
+  transition: all var(--duration-fast) ease;
+}
+
+.menu:hover .menu-icon {
+  color: var(--accent);
+}
+
+.menu-title {
+  flex: 1;
+  text-align: left;
+  padding-left: 4px;
+}
+
+/* Specific button accent styles */
+.menu.upload:hover .menu-icon { color: var(--info); }
+.menu.plot:hover .menu-icon { color: var(--accent); }
+.menu.remove-plots:hover { color: var(--danger-text); }
+.menu.remove-plots:hover .menu-icon { color: var(--danger); }
+.menu.assign-id:hover .menu-icon { color: var(--warning); }
+.menu.word-save .menu-icon { color: #2b579a; }
+.menu.word-save:hover .menu-icon { color: #4d83c7; }
+.menu.generate-csv:hover .menu-icon { color: hsl(270, 60%, 65%); }
+.menu.admin-management.active {
+  background: hsla(160, 64%, 48%, 0.16);
+  border: 1px solid hsla(160, 64%, 54%, 0.38);
+}
+.menu.admin-management.active .menu-icon {
+  color: var(--accent);
+}
+.menu.logout { margin-top: auto; }
+.menu.logout:hover { color: var(--danger-text); }
+.menu.logout:hover .menu-icon { color: var(--danger); }
+
+.menu[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.menu[disabled]:hover {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.menu[disabled]:hover .menu-icon {
+  color: var(--text-secondary);
+}
+
+.admin-content-view {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  overflow: auto;
+  background: hsl(216, 25%, 12%);
+}
+
+@media (max-width: 900px) {
+  .home.admin-management-mode {
+    flex-direction: row;
+  }
+
+  .admin-content-view {
+    min-height: 100vh;
+  }
+}
+
+/* ── Plantation image selector ── */
+.plantation-selector,
+.model-selector {
+  width: 100%;
+  padding: 12px 16px;
+  list-style-type: none;
+  color: var(--text-secondary);
+}
+
+.plantation-selector label,
+.model-selector label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.plantation-selector select,
+.model-selector select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  transition: border-color var(--duration-fast) ease;
+  cursor: pointer;
+}
+
+.plantation-selector select:hover,
+.model-selector select:hover {
+  border-color: hsla(0, 0%, 100%, 0.2);
+}
+
+.plantation-selector select:focus,
+.model-selector select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* ── Tree count stat ── */
+.tree-count-card {
+  margin: 12px 16px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg,
+    hsla(160, 70%, 46%, 0.1) 0%,
+    hsla(195, 75%, 52%, 0.05) 100%);
+  border: 1px solid hsla(160, 70%, 46%, 0.15);
+  text-align: center;
+}
+
+.tree-count-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.tree-count-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.2;
+  letter-spacing: -1px;
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+/* ── User info at bottom ── */
+.current-user {
+  width: 100%;
+  padding: 14px 16px;
+  list-style-type: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  word-break: break-word;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: auto;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), hsl(195, 75%, 52%));
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: hsl(220, 20%, 8%);
+}
+
+/* ── Selected marker glow ── */
+.selected-marker-icon {
+  filter: drop-shadow(0 0 5px #ffffff) drop-shadow(0 0 8px #31d158);
+}
+
+/* ═══════════════════════════════════════════════════
+   Loading / Processing Overlay
+   ═══════════════════════════════════════════════════ */
+.loading-screen {
+  position: absolute;
+  z-index: 2000;
+  background: hsla(220, 20%, 5%, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  place-items: center;
+}
+
+.loading-child {
+  width: min(440px, calc(100vw - 32px));
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  color: var(--text-primary);
+  padding: 32px;
+  animation: fadeIn 0.4s var(--ease-out) both;
+}
+
+.hidden {
+  text-decoration: none;
+}
+
+.Loading-page::after {
+  content: "Processing....";
+  font-size: 20px;
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.processing-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.processing-title {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.processing-percent {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--accent), hsl(195, 75%, 52%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+/* ── Progress bar ── */
+.progress-bar-track {
+  width: 100%;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: hsla(0, 0%, 100%, 0.08);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    var(--accent),
+    hsl(170, 65%, 50%),
+    var(--accent));
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+  transition: width 0.4s var(--ease-out);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.export-progress-fill {
+  background: linear-gradient(90deg,
+    var(--info),
+    hsl(205, 70%, 55%),
+    var(--info));
+  background-size: 200% 100%;
+  box-shadow: 0 0 12px var(--info-muted);
+}
+
+.processing-caption {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════════
+   Detection / Export Task Panels
+   ═══════════════════════════════════════════════════ */
+.detection-task-list {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 1100;
+  width: min(420px, calc(100% - 32px));
+  display: grid;
+  gap: 10px;
+}
+
+.detection-status-panel {
+  padding: 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-lg);
+  animation: slideInUp 0.4s var(--ease-out) both;
+}
+
+.detection-status-head,
+.detection-status-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detection-status-title {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.detection-status-copy {
+  min-width: 0;
+}
+
+.detection-status-image {
+  margin-top: 3px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detection-status-message {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.detection-status-model {
+  margin-top: 3px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.detection-status-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detection-status-badge {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: hsla(0, 0%, 100%, 0.08);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.detection-task-close {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: all var(--duration-fast) ease;
+}
+
+.detection-task-close:hover {
+  background: hsla(0, 0%, 100%, 0.1);
+  color: var(--text-primary);
+}
+
+.detection-status-success {
+  background: var(--success);
+  color: #fff;
+}
+
+.detection-status-failure {
+  background: var(--danger);
+  color: #fff;
+}
+
+.detection-status-pending,
+.detection-status-started {
+  background: var(--accent-muted);
+  color: var(--accent);
+}
+
+.detection-status-panel .progress-bar-track {
+  margin: 12px 0 10px;
+  height: 8px;
+}
+
+.detection-status-foot {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detection-status-foot button {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 5px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all var(--duration-fast) ease;
+}
+
+.detection-status-foot button:hover {
+  background: hsla(0, 0%, 100%, 0.08);
+  color: var(--text-primary);
+  border-color: hsla(0, 0%, 100%, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════
+   Image Display Notification
+   ═══════════════════════════════════════════════════ */
+.image-display-notification {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  max-width: min(520px, calc(100% - 32px));
+  padding: 10px 12px 10px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  box-shadow: var(--shadow-md);
+  animation: slideInDown 0.3s var(--ease-out) both;
+}
+
+.image-display-notification-text {
+  min-width: 0;
+}
+
+.image-display-notification-text span {
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.image-notification-close {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: all var(--duration-fast) ease;
+}
+
+.image-notification-close:hover {
+  background: hsla(0, 0%, 100%, 0.1);
+  color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════════════════
+   App Notifications (Success / Error Toasts)
+   ═══════════════════════════════════════════════════ */
+.app-notification {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1100;
+  width: min(380px, calc(100% - 32px));
+  padding: 16px;
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: var(--shadow-lg);
+  animation: slideInRight 0.35s var(--ease-out) both;
+}
+
+.app-notification-error {
+  border-left-color: var(--danger);
+}
+
+.app-notification-icon {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--success-muted);
+  color: var(--success);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.app-notification-error .app-notification-icon {
+  background: var(--danger-muted);
+  color: var(--danger);
+}
+
+.app-notification-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.app-notification-title {
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.app-notification-message {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.app-notification-close {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: all var(--duration-fast) ease;
+}
+
+.app-notification-close:hover {
+  background: hsla(0, 0%, 100%, 0.1);
+  color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════════════════
+   Leaflet Popup Overrides
+   ═══════════════════════════════════════════════════ */
+.leaflet-popup-content-wrapper {
+  background: var(--bg-glass-heavy) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-md) !important;
+  color: var(--text-primary) !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--bg-glass-heavy) !important;
+}
+
+.leaflet-popup-content {
+  margin: 8px 12px !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+}
+
+.leaflet-popup-content button {
+  background: none;
+  border: none;
+  color: var(--danger);
+  padding: 4px 2px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: color var(--duration-fast) ease;
+}
+
+.leaflet-popup-content button:hover {
+  text-decoration: none;
+  color: hsl(0, 72%, 46%);
+}
+
+/* ── Leaflet tooltip override ── */
+.leaflet-tooltip {
+  background: var(--bg-glass-heavy) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow-sm) !important;
+  color: var(--text-primary) !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  padding: 6px 10px !important;
+}
+
+.leaflet-tooltip-top::before { border-top-color: var(--bg-glass-heavy) !important; }
+.leaflet-tooltip-bottom::before { border-bottom-color: var(--bg-glass-heavy) !important; }
+.leaflet-tooltip-left::before { border-left-color: var(--bg-glass-heavy) !important; }
+.leaflet-tooltip-right::before { border-right-color: var(--bg-glass-heavy) !important; }
+
+/* ── Leaflet zoom control override ── */
+.leaflet-control-zoom a {
+  background: var(--bg-glass-heavy) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background var(--duration-fast) ease;
+}
+
+.leaflet-control-zoom a:hover {
+  background: var(--bg-elevated) !important;
+}
+
+/* ── Marker cluster overrides ── */
+.marker-cluster div {
+  background: var(--accent) !important;
+  color: hsl(220, 20%, 8%) !important;
+  font-family: inherit !important;
+  font-weight: 700 !important;
+}
+
+.marker-cluster {
+  background: var(--accent-muted) !important;
+}
+
+.marker-cluster-green div {
+  background: hsl(145, 64%, 48%) !important;
+}
+
+.marker-cluster-green {
+  background: hsla(145, 64%, 48%, 0.24) !important;
+}
+
+.marker-cluster-yellow div {
+  background: hsl(45, 92%, 56%) !important;
+}
+
+.marker-cluster-yellow {
+  background: hsla(45, 92%, 56%, 0.26) !important;
+}
+
+/* ── Menu section divider ── */
+.sidebar-divider {
+  height: 1px;
+  margin: 8px 16px;
+  background: var(--border-subtle);
+}

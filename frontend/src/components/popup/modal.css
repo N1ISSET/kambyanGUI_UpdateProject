@@ -1,0 +1,343 @@
+/* ═══════════════════════════════════════════════════
+   Kambyan GUI — Modal Theme Overrides
+   ═══════════════════════════════════════════════════ */
+
+/* ── Bootstrap Modal Backdrop ── */
+.modal-backdrop {
+  background: hsla(220, 20%, 5%, 0.6) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── Modal Content (dark glass) ── */
+.modal-content {
+  background: var(--bg-glass-heavy) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-xl) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Modal Header ── */
+.modal-header {
+  padding: 20px 24px 16px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  background: transparent !important;
+}
+
+.modal-title {
+  margin: 0;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.3px;
+}
+
+/* Close button */
+.modal-header .btn-close {
+  filter: invert(1) !important;
+  opacity: 0.5 !important;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.modal-header .btn-close:hover {
+  opacity: 0.9 !important;
+}
+
+/* ── Modal Body ── */
+.modal-body {
+  padding: 20px 24px !important;
+  color: var(--text-secondary) !important;
+}
+
+.modal-body p {
+  color: var(--text-secondary) !important;
+}
+
+/* ── Modal Footer ── */
+.modal-footer {
+  padding: 16px 24px 20px !important;
+  border-top: 1px solid var(--border-subtle) !important;
+  background: transparent !important;
+  gap: 10px;
+}
+
+/* ── Form Controls in Modals ── */
+.modal-body .form-control,
+.modal-body input[type="file"],
+.modal-body input[type="number"] {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  padding: 10px 14px !important;
+  transition: border-color var(--duration-fast) ease,
+              box-shadow var(--duration-fast) ease;
+}
+
+.modal-body .form-control:focus,
+.modal-body input[type="file"]:focus,
+.modal-body input[type="number"]:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-glow) !important;
+  outline: none !important;
+}
+
+.modal-body input[type="file"]::file-selector-button {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 4px !important;
+  color: var(--text-secondary) !important;
+  padding: 6px 14px !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  margin-right: 12px !important;
+  transition: all var(--duration-fast) ease;
+}
+
+.modal-body input[type="file"]::file-selector-button:hover {
+  background: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Buttons in Modals ── */
+.modal-footer .btn {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 8px 20px !important;
+  min-height: 40px;
+  transition: all var(--duration-normal) var(--ease-out) !important;
+}
+
+/* Primary action (Upload / Submit) */
+.modal-footer .btn-outline-danger,
+.modal-footer .btn.btn-outline-danger {
+  background: linear-gradient(135deg, var(--accent), hsl(170, 65%, 40%)) !important;
+  border: 0 !important;
+  color: hsl(220, 20%, 8%) !important;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+.modal-footer .btn-outline-danger:hover,
+.modal-footer .btn.btn-outline-danger:hover {
+  background: linear-gradient(135deg, var(--accent-hover), hsl(170, 65%, 34%)) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.modal-footer .btn-outline-danger:disabled,
+.modal-footer .btn.btn-outline-danger:disabled {
+  opacity: 0.4 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+/* Secondary action (Close) */
+.modal-footer .btn-primary,
+.modal-footer .btn:not(.btn-outline-danger) {
+  background: transparent !important;
+  border: 1px solid var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+.modal-footer .btn-primary:hover,
+.modal-footer .btn:not(.btn-outline-danger):hover {
+  background: hsla(0, 0%, 100%, 0.06) !important;
+  color: var(--text-primary) !important;
+  border-color: hsla(0, 0%, 100%, 0.2) !important;
+}
+
+/* ── Alerts in Modals ── */
+.modal-body .alert-danger {
+  background: var(--danger-muted) !important;
+  border: 1px solid hsla(0, 72%, 56%, 0.2) !important;
+  color: var(--danger-text) !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 14px !important;
+  font-weight: 500;
+}
+
+.modal-body .alert-success {
+  background: var(--success-muted) !important;
+  border: 1px solid hsla(145, 65%, 46%, 0.2) !important;
+  color: hsl(145, 70%, 65%) !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 14px !important;
+  font-weight: 500;
+}
+
+/* ── Upload Progress Bar in Modals ── */
+.upload-progress {
+  margin: 16px 0 8px;
+}
+
+.upload-progress .progress {
+  height: 10px;
+  background: hsla(0, 0%, 100%, 0.08) !important;
+  border-radius: 5px !important;
+  overflow: hidden;
+}
+
+.upload-progress .progress-bar {
+  background: linear-gradient(90deg,
+    var(--accent),
+    hsl(170, 65%, 50%),
+    var(--accent)) !important;
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+  border-radius: 5px;
+  font-size: 11px !important;
+  font-weight: 700;
+}
+
+.upload-progress .progress-bar.bg-danger {
+  background: linear-gradient(90deg,
+    var(--accent),
+    hsl(170, 65%, 50%),
+    var(--accent)) !important;
+  background-size: 200% 100%;
+}
+
+.upload-progress .progress-bar.bg-secondary {
+  background: linear-gradient(90deg,
+    var(--info),
+    hsl(205, 70%, 55%),
+    var(--info)) !important;
+  background-size: 200% 100%;
+}
+
+.upload-progress-status {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 8px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ── Spinner in Modals ── */
+.spinner-border {
+  color: var(--accent) !important;
+}
+
+/* ── Drag container ── */
+.dragcontainer {
+  display: flex;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+}
+
+.dragcard {
+  height: 48px;
+  width: 48px;
+  border: 2px solid var(--accent);
+  background: var(--accent-muted);
+  border-radius: var(--radius-sm);
+}
+
+.square {
+  display: none;
+}
+
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+}
+
+/* ── Fullscreen modal adjustments ── */
+.modal.show .modal-dialog-fullscreen .modal-content {
+  background: var(--bg-base) !important;
+}
+
+/* ── Warning modal icon ── */
+.modal-warning-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  margin: 0 auto 12px;
+}
+
+.modal-warning-icon--danger {
+  background: var(--danger-muted);
+  color: var(--danger);
+}
+
+.modal-warning-icon--warning {
+  background: var(--warning-muted);
+  color: var(--warning);
+}
+
+/* Legacy overrides to avoid unstyled areas */
+.popup-upload {
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  background-color: hsla(220, 20%, 5%, 0.6);
+  justify-content: center;
+  text-align: center;
+  align-content: center;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(8px);
+}
+
+.popup-content {
+  width: 50%;
+  background: var(--bg-glass-heavy);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Scale image preview in modal */
+.modal-body img {
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+/* Number input for scale */
+.modal-footer input[type="number"] {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text-primary) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  padding: 8px 12px !important;
+  width: 100px;
+  text-align: center;
+}
+
+.modal-footer input[type="number"]:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-glow) !important;
+  outline: none !important;
+}
+
+.upload-file-field {
+  display: grid;
+  gap: 8px;
+}
+
+.upload-file-field label {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}

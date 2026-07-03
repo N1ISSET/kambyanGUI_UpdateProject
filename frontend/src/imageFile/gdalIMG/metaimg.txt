@@ -1,0 +1,71 @@
+Driver: GTiff/GeoTIFF
+Files: C:\Users\User\Documents\EBTECH\kambyanGUIFinal_update8\frontend/src/imageFile/gdalIMG/Block20153243ha_Orthomosaic_export_MonNov08211912119962.tif
+Size is 14155, 19267
+Coordinate System is:
+PROJCRS["WGS 84 / Pseudo-Mercator",
+    BASEGEOGCRS["WGS 84",
+        ENSEMBLE["World Geodetic System 1984 ensemble",
+            MEMBER["World Geodetic System 1984 (Transit)"],
+            MEMBER["World Geodetic System 1984 (G730)"],
+            MEMBER["World Geodetic System 1984 (G873)"],
+            MEMBER["World Geodetic System 1984 (G1150)"],
+            MEMBER["World Geodetic System 1984 (G1674)"],
+            MEMBER["World Geodetic System 1984 (G1762)"],
+            ELLIPSOID["WGS 84",6378137,298.257223563,
+                LENGTHUNIT["metre",1]],
+            ENSEMBLEACCURACY[2.0]],
+        PRIMEM["Greenwich",0,
+            ANGLEUNIT["degree",0.0174532925199433]],
+        ID["EPSG",4326]],
+    CONVERSION["Popular Visualisation Pseudo-Mercator",
+        METHOD["Popular Visualisation Pseudo Mercator",
+            ID["EPSG",1024]],
+        PARAMETER["Latitude of natural origin",0,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8801]],
+        PARAMETER["Longitude of natural origin",0,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8802]],
+        PARAMETER["False easting",0,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8806]],
+        PARAMETER["False northing",0,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8807]]],
+    CS[Cartesian,2],
+        AXIS["easting (X)",east,
+            ORDER[1],
+            LENGTHUNIT["metre",1]],
+        AXIS["northing (Y)",north,
+            ORDER[2],
+            LENGTHUNIT["metre",1]],
+    USAGE[
+        SCOPE["Web mapping and visualisation."],
+        AREA["World between 85.06°S and 85.06°N."],
+        BBOX[-85.06,-180,85.06,180]],
+    ID["EPSG",3857]]
+Data axis to CRS axis mapping: 1,2
+Origin = (11378416.030531337484717,601989.370888440986164)
+Pixel Size = (0.048600000000000,-0.048600000000000)
+Metadata:
+  acquisitionEndDate=2021-10-17T04:51:00+00:00
+  acquisitionStartDate=2021-10-17T04:21:00+00:00
+  AREA_OR_POINT=Area
+  isCalibrated=False
+Image Structure Metadata:
+  COMPRESSION=DEFLATE
+  INTERLEAVE=PIXEL
+  PREDICTOR=2
+Corner Coordinates:
+Upper Left  (11378416.031,  601989.371) (102d12'50.58"E,  5d23'59.11"N)
+Lower Left  (11378416.031,  601052.995) (102d12'50.58"E,  5d23'28.96"N)
+Upper Right (11379103.964,  601989.371) (102d13'12.83"E,  5d23'59.11"N)
+Lower Right (11379103.964,  601052.995) (102d13'12.83"E,  5d23'28.96"N)
+Center      (11378759.997,  601521.183) (102d13' 1.70"E,  5d23'44.03"N)
+Band 1 Block=256x256 Type=Byte, ColorInterp=Red
+  Mask Flags: PER_DATASET ALPHA 
+Band 2 Block=256x256 Type=Byte, ColorInterp=Green
+  Mask Flags: PER_DATASET ALPHA 
+Band 3 Block=256x256 Type=Byte, ColorInterp=Blue
+  Mask Flags: PER_DATASET ALPHA 
+Band 4 Block=256x256 Type=Byte, ColorInterp=Alpha
