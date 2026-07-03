@@ -129,11 +129,14 @@ class DetectionTask(models.Model):
         SUCCESS = 'SUCCESS', _('Success')
         FAILURE = 'FAILURE', _('Failure')
 
+    DEFAULT_MODEL_BACKEND = '__main__'
+
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.CASCADE)
     image = models.ForeignKey(ImageData, blank=True, null=True, on_delete=models.CASCADE)
     celery_task_id = models.CharField(max_length=255, blank=True)
     image_name = models.CharField(max_length=500)
     timestamp = models.CharField(max_length=80)
+    model_backend = models.CharField(max_length=30, default=DEFAULT_MODEL_BACKEND)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     progress = models.PositiveSmallIntegerField(default=0)
     message = models.CharField(max_length=255, blank=True)

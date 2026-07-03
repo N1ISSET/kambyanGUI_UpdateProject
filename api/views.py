@@ -315,9 +315,9 @@ def default_review_scale(width, height):
 
 
 PREVIEW_MAX_DIMENSION = 8000
-# Full-resolution detection preserves small tree crowns. Set
-# KAMBYAN_DETECTION_MAX_DIMENSION to a positive value to trade accuracy for speed.
-DETECTION_MAX_DIMENSION = int(os.environ.get('KAMBYAN_DETECTION_MAX_DIMENSION', '0'))
+# The detector was trained/tuned around the legacy resized image scale.
+# Full-resolution orthomosaics make leaf overlaps look like separate trees.
+DETECTION_MAX_DIMENSION = int(os.environ.get('KAMBYAN_DETECTION_MAX_DIMENSION', '7707'))
 
 
 def preview_scale_for_image(width, height):
@@ -799,6 +799,7 @@ def detection_task_payload(job):
         'image_id': job.image_id,
         'image_name': job.image_name,
         'image_display_name': image_display_name,
+        'model_backend': job.model_backend,
         'debug_metadata': job.debug_metadata,
         'created_on': job.created_on,
         'updated_on': job.updated_on,
@@ -960,6 +961,7 @@ class ProcessIMG(APIView):
             image=image,
             image_name=img_file,
             timestamp=Timestamp,
+            model_backend=DetectionTask.DEFAULT_MODEL_BACKEND,
             status=DetectionTask.Status.PENDING,
             progress=0,
             message='Queued for detection',

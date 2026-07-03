@@ -21,7 +21,13 @@ from Detection.kambyanModel import label_map_util
 
 
 DETECTION_CONFIDENCE_THRESHOLD = 0.6
-DUPLICATE_POINT_DISTANCE = int(os.environ.get("KAMBYAN_DUPLICATE_POINT_DISTANCE", "30"))
+DETECTION_MIN_BOX_WIDTH = int(os.environ.get("KAMBYAN_DETECTION_MIN_BOX_WIDTH", "14"))
+DETECTION_MIN_BOX_HEIGHT = int(os.environ.get("KAMBYAN_DETECTION_MIN_BOX_HEIGHT", "14"))
+DETECTION_MIN_BOX_AREA = int(os.environ.get("KAMBYAN_DETECTION_MIN_BOX_AREA", "300"))
+DETECTION_MAX_BOX_ASPECT_RATIO = float(os.environ.get("KAMBYAN_DETECTION_MAX_BOX_ASPECT_RATIO", "3.0"))
+# Calibrated against the legacy Block20071513 reference CSV: valid tree centers
+# are rarely closer than about 94 source pixels at the 7707px detection scale.
+DUPLICATE_POINT_DISTANCE = int(os.environ.get("KAMBYAN_DUPLICATE_POINT_DISTANCE", "40"))
 DUPLICATE_DISTANCE_REFERENCE_DIMENSION = int(os.environ.get("KAMBYAN_DUPLICATE_DISTANCE_REFERENCE_DIMENSION", "7707"))
 TILE_SIZE = (480, 480)
 TILE_OFFSET = (430, 430)
@@ -122,6 +128,21 @@ def merge_duplicate_detections(rows, duplicate_distance):
     return merged_rows, merged_cluster_count
 
 
+def is_valid_detection_box(xmin, ymin, xmax, ymax):
+    box_width = max(0, xmax - xmin)
+    box_height = max(0, ymax - ymin)
+    if box_width < DETECTION_MIN_BOX_WIDTH or box_height < DETECTION_MIN_BOX_HEIGHT:
+        return False
+    if (box_width * box_height) < DETECTION_MIN_BOX_AREA:
+        return False
+
+    aspect_ratio = max(
+        box_width / float(box_height or 1),
+        box_height / float(box_width or 1),
+    )
+    return aspect_ratio <= DETECTION_MAX_BOX_ASPECT_RATIO
+
+
 def image_tiling(image_file, images_folder):
     print ('Image_Tiling: Starting')
     img = cv2.imread(str(image_file)) 
@@ -196,10 +217,10 @@ class PalmOilTreeDetector:
         raw_count = int(num[0]) if np.ndim(num) > 0 else int(num)
         tree_list = []
         filtered_count = 0
+        box_rejected_count = 0
         for i in range(boxes.shape[0]):
             if score is None or score[i] > DETECTION_CONFIDENCE_THRESHOLD:
                 filtered_count += 1
-                ids = ids + 1
                 boxes1 = tuple(boxes[i].tolist())
 
                 if classes[i] in six.viewkeys(self.category_index):
@@ -210,6 +231,11 @@ class PalmOilTreeDetector:
                 xmin = int(xmin * imW)
                 ymax = int(ymax * imH)
                 xmax = int(xmax * imW)
+                if not is_valid_detection_box(xmin, ymin, xmax, ymax):
+                    box_rejected_count += 1
+                    continue
+
+                ids = ids + 1
                 mox = round((xmin + xmax) / 2, 2)
                 moy = round((ymin + ymax) / 2, 2)
 
@@ -227,7 +253,7 @@ class PalmOilTreeDetector:
                             "width": imW}
 
                 tree_list.append(objects)
-        return tree_list, raw_count, filtered_count
+        return tree_list, raw_count, filtered_count, box_rejected_count
 
 
 def create_detector():
@@ -257,12 +283,13 @@ def run_detection_on_image(image_path):
     list_coordinates = []
     raw_count = 0
     filtered_count = 0
+    box_rejected_count = 0
     tile_count = 0
     try:
         device_info = detector.device_info()
         for row, column, x_offset, y_offset, tile in iter_image_tiles(image):
             tile_count += 1
-            data_list, tile_raw_count, tile_filtered_count = detector.detect_tile(
+            data_list, tile_raw_count, tile_filtered_count, tile_box_rejected_count = detector.detect_tile(
                 tile,
                 len(list_coordinates),
                 row,
@@ -272,6 +299,7 @@ def run_detection_on_image(image_path):
             )
             raw_count += tile_raw_count
             filtered_count += tile_filtered_count
+            box_rejected_count += tile_box_rejected_count
             list_coordinates.extend(data_list)
     finally:
         detector.close()
@@ -282,6 +310,14 @@ def run_detection_on_image(image_path):
         "tile_count": tile_count,
         "raw_detections": raw_count,
         "confidence_filtered_detections": filtered_count,
+        "box_rejected_detections": box_rejected_count,
+        "box_filtered_detections": len(list_coordinates),
+        "box_filter": {
+            "min_width": DETECTION_MIN_BOX_WIDTH,
+            "min_height": DETECTION_MIN_BOX_HEIGHT,
+            "min_area": DETECTION_MIN_BOX_AREA,
+            "max_aspect_ratio": DETECTION_MAX_BOX_ASPECT_RATIO,
+        },
         "coordinate_filtered_detections": 0,
         "detector_devices": device_info,
         "tensorflow_devices": device_info,
@@ -295,7 +331,7 @@ def palmoil_tree_detection(images_file, ids, imR, imC, xdim, ydim):
         raise FileNotFoundError("Unable to read image file: {}".format(images_file))
     detector = create_detector()
     try:
-        tree_list, raw_count, filtered_count = detector.detect_tile(image, ids, imR, imC, xdim, ydim)
+        tree_list, raw_count, filtered_count, _ = detector.detect_tile(image, ids, imR, imC, xdim, ydim)
         return image, tree_list
     finally:
         detector.close()

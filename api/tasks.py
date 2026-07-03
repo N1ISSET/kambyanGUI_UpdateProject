@@ -35,9 +35,8 @@ except ImportError:
 
 
 PREVIEW_MAX_DIMENSION = 8000
-# Full-resolution detection preserves small tree crowns. Set
-# KAMBYAN_DETECTION_MAX_DIMENSION to a positive value to trade accuracy for speed.
-DETECTION_MAX_DIMENSION = int(os.environ.get('KAMBYAN_DETECTION_MAX_DIMENSION', '0'))
+# Keep TensorFlow inference at the legacy model scale unless explicitly overridden.
+DETECTION_MAX_DIMENSION = int(os.environ.get('KAMBYAN_DETECTION_MAX_DIMENSION', '7707'))
 
 
 def _workspace_media_path(user):
@@ -445,7 +444,7 @@ def _run_detection_job(job_id, celery_task=None):
         object_list, debug_metadata = main(
             detection_path or job.image_name,
             job.timestamp,
-            "__main__",
+            job.model_backend,
             _workspace_media_path(job.owner),
             return_debug=True,
         )
