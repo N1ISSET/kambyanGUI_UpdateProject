@@ -262,11 +262,7 @@ function App() {
       isValid: /\d/.test(passwordValue),
     },
     {
-      label: 'Contains an underscore (_)',
-      isValid: passwordValue.includes('_'),
-    },
-    {
-      label: 'No spaces',
+      label: 'No spaces; replace spaces with underscore (_)',
       isValid: passwordValue.length > 0 && !/\s/.test(passwordValue),
     },
     {

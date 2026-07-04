@@ -281,9 +281,7 @@ def validate_csv_upload(uploaded_file):
 def validate_kambyan_password(password, user=None):
     validate_password(password, user)
     if re.search(r"\s", password):
-        raise ValidationError("Password cannot contain spaces.")
-    if "_" not in password:
-        raise ValidationError("Password must include an underscore (_).")
+        raise ValidationError("Password cannot contain spaces. Replace spaces with underscore (_) if needed.")
     if not re.search(r"[A-Z]", password):
         raise ValidationError("Password must include an uppercase letter.")
     if not re.search(r"[a-z]", password):
