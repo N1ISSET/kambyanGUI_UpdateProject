@@ -189,18 +189,23 @@ def _parse_review_coordinate_rows(csv_data, fallback_scale=None):
                 scale = row[3]
                 x_pixel = row[4]
                 y_pixel = row[5]
+                has_csv_scale = scale not in (None, '')
             elif len(row) == 5:
                 scale = fallback_scale
                 x_pixel = row[1]
                 y_pixel = row[2]
+                has_csv_scale = False
             elif len(row) >= 4:
                 scale = row[3]
                 x_pixel = row[1]
                 y_pixel = row[2]
+                has_csv_scale = scale not in (None, '')
             else:
                 continue
         else:
-            scale = _first_present_value(row, [('Scale', 3)], fallback_scale)
+            csv_scale = _first_present_value(row, [('Scale', 3)])
+            scale = csv_scale if csv_scale not in (None, '') else fallback_scale
+            has_csv_scale = csv_scale not in (None, '')
             x_pixel = _first_present_value(row, [
                 ('X Pixel', 4),
                 ('Pixel X', 1),
@@ -220,6 +225,7 @@ def _parse_review_coordinate_rows(csv_data, fallback_scale=None):
                 'scale': float(scale),
                 'x_pixel': float(x_pixel),
                 'y_pixel': float(y_pixel),
+                'has_csv_scale': has_csv_scale,
             })
         except (TypeError, ValueError):
             continue
@@ -366,11 +372,20 @@ def _run_upload_job(job_id, celery_task=None):
             coordinate_rows = _parse_review_coordinate_rows(job.csv_data or [], _default_review_scale(width, height))
             if not coordinate_rows:
                 raise ValueError('No valid coordinate rows found in CSV.')
-            preview_scale = coordinate_rows[0]['scale']
+
+            detection_scale_x = _detection_scale_for_image(width, height)
+            detection_scale_y = detection_scale_x
+            detection_height = max(1, int(round(height * detection_scale_y)))
+            # Exported CSV "Scale" is preview/detection scale. PIL resizing
+            # needs preview/source scale, so convert it back during import.
+            if coordinate_rows[0].get('has_csv_scale'):
+                preview_scale = coordinate_rows[0]['scale'] * detection_scale_x
+            else:
+                preview_scale = coordinate_rows[0]['scale']
             temp_data = [
                 {
-                    'lat': round(-coord['y_pixel'] + int(height), 2),
-                    'lng': round(coord['x_pixel'], 2),
+                    'lat': round(detection_height - (coord['y_pixel'] * detection_scale_y), 2),
+                    'lng': round(coord['x_pixel'] * detection_scale_x, 2),
                 }
                 for coord in coordinate_rows
             ]

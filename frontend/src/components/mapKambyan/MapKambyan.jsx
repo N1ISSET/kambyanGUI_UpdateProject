@@ -177,6 +177,7 @@ function MapKambyan({
   const [markerRefreshKey, setMarkerRefreshKey] = useState(0);
   const [showImageNotification, setShowImageNotification] = useState(true);
   const [notification, setNotification] = useState(null);
+  const [exportTooltip, setExportTooltip] = useState({ visible: false, x: 0, y: 0 });
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const mapRef = useRef(null);
   const activeDetectionJobIdsRef = useRef(new Set());
@@ -288,9 +289,36 @@ function MapKambyan({
   const exportZipUrl = currentExportJob?.zip_url ? getProxiedMediaUrl(currentExportJob.zip_url) : "";
   const canExportResult = currentReadyExportJob?.status === "SUCCESS" && currentReadyExportJob?.artifact_exists === true;
 
+  const showExportUnavailableTooltip = useCallback((event) => {
+    if (canExportResult) return;
+    setExportTooltip({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+    });
+  }, [canExportResult]);
+
+  const moveExportUnavailableTooltip = useCallback((event) => {
+    if (canExportResult) return;
+    setExportTooltip((currentTooltip) => ({
+      ...currentTooltip,
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+    }));
+  }, [canExportResult]);
+
+  const hideExportUnavailableTooltip = useCallback(() => {
+    setExportTooltip((currentTooltip) => ({
+      ...currentTooltip,
+      visible: false,
+    }));
+  }, []);
+
   // State for image dimensions (loaded asynchronously)
   const [imgDimensions, setImgDimensions] = useState(null);
   const [imgSrc, setImgSrc] = useState(null);
+  const hasUploadedImage = Boolean(dataImage.image_file);
 
   const displayedImageName = imgSrc
     ? decodeURIComponent(imgSrc.split("/").pop() || "Selected image")
@@ -954,18 +982,25 @@ function MapKambyan({
             </div>
             <div className="menu-title">Save Data</div>
           </button>
-          <button
-            type="button"
-            className="menu generate-csv"
-            onClick={download}
-            disabled={!canExportResult}
-            title={canExportResult ? "Export result" : "Save data first"}
+          <div
+            className="export-tooltip-anchor"
+            onMouseEnter={showExportUnavailableTooltip}
+            onMouseMove={moveExportUnavailableTooltip}
+            onMouseLeave={hideExportUnavailableTooltip}
           >
-            <div className="menu-icon">
-              <FaIcon.FaFileCsv />
-            </div>
-            <div className="menu-title">Export Result</div>
-          </button>
+            <button
+              type="button"
+              className="menu generate-csv"
+              onClick={download}
+              disabled={!canExportResult}
+              title={canExportResult ? "Export result" : undefined}
+            >
+              <div className="menu-icon">
+                <FaIcon.FaFileCsv />
+              </div>
+              <div className="menu-title">Export Result</div>
+            </button>
+          </div>
 
           <button className="menu upload" onClick={() => setReviewShow(true)}>
             <div className="menu-icon">
@@ -1164,6 +1199,18 @@ function MapKambyan({
             </button>
           </div>
         ) : null}
+        {exportTooltip.visible && !canExportResult ? (
+          <div
+            className="export-unavailable-tooltip"
+            style={{
+              left: `${exportTooltip.x + 14}px`,
+              top: `${exportTooltip.y + 14}px`,
+            }}
+            role="tooltip"
+          >
+            This function is only available when the data is saved.
+          </div>
+        ) : null}
         {imgDimensions && bounds && imgSrc ? (
           <MapContainer
             key={dataImage.id || imgSrc}
@@ -1195,10 +1242,14 @@ function MapKambyan({
               />
             </MarkerClusterGroup>
           </MapContainer>
-        ) : (
+        ) : hasUploadedImage ? (
           <div className="map-loading-skeleton">
             <ReactLoading type={"spin"} color={"#888"} height={60} width={60} />
             <p style={{ color: '#aaa', marginTop: '16px' }}>Loading map...</p>
+          </div>
+        ) : (
+          <div className="map-loading-skeleton map-empty-state" role="status" aria-live="polite">
+            <p>No image is uploaded</p>
           </div>
         )}
           </>

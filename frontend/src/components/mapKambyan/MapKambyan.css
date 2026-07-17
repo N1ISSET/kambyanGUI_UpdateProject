@@ -45,6 +45,13 @@
   animation: pulse-soft 2s ease-in-out infinite;
 }
 
+.map-empty-state p {
+  margin-top: 0;
+  color: var(--text-secondary);
+  font-size: 18px;
+  animation: none;
+}
+
 /* ═══════════════════════════════════════════════════
    Sidebar
    ═══════════════════════════════════════════════════ */
@@ -227,10 +234,33 @@
 .menu.plot:hover .menu-icon { color: var(--accent); }
 .menu.remove-plots:hover { color: var(--danger-text); }
 .menu.remove-plots:hover .menu-icon { color: var(--danger); }
-.menu.assign-id:hover .menu-icon { color: var(--warning); }
-.menu.word-save .menu-icon { color: #2b579a; }
-.menu.word-save:hover .menu-icon { color: #4d83c7; }
 .menu.generate-csv:hover .menu-icon { color: hsl(270, 60%, 65%); }
+.export-tooltip-anchor {
+  width: 100%;
+}
+
+.export-tooltip-anchor .menu[disabled] {
+  pointer-events: none;
+}
+
+.export-unavailable-tooltip {
+  position: fixed;
+  z-index: 1600;
+  max-width: 260px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-glass-heavy);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
 .menu.admin-management.active {
   background: hsla(160, 64%, 48%, 0.16);
   border: 1px solid hsla(160, 64%, 54%, 0.38);
@@ -650,9 +680,9 @@
 .image-display-notification {
   position: absolute;
   top: 16px;
-  left: 16px;
+  left: 76px;
   z-index: 1000;
-  max-width: min(520px, calc(100% - 32px));
+  max-width: min(520px, calc(100% - 92px));
   padding: 10px 12px 10px 14px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);

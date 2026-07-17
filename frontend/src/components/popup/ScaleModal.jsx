@@ -59,6 +59,8 @@ function ImageScaling(props) {
     const [imageHeight, setImageHeight] = useState();
     const [done, setDone] = useState(true);
     const [errorMessage, setErrorMessage] = useState("This is a error Message");
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploadStatus, setUploadStatus] = useState("");
 
    
 
@@ -126,6 +128,46 @@ function ImageScaling(props) {
 
 
 
+    const pollUploadJob = (jobId) => {
+        fetch(`api/upload-status/?job_id=${jobId}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Unable to check upload status.");
+                }
+                return res.json();
+            })
+            .then(data => {
+                setUploadProgress(data.progress || 0);
+                setUploadStatus(data.message || "Processing on server...");
+
+                if (data.status === "SUCCESS") {
+                    setshowDangerAlert(false);
+                    setshowSuccessAlert(true);
+                    setUploadProgress(100);
+                    setUploadStatus("Completed");
+                    setDone(true);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                    return;
+                }
+
+                if (data.status === "FAILURE") {
+                    setErrorMessage(data.error || "Upload failed. Please try again.");
+                    setshowDangerAlert(true);
+                    setDone(true);
+                    return;
+                }
+
+                setTimeout(() => pollUploadJob(jobId), 1500);
+            })
+            .catch(error => {
+                setErrorMessage(error.message || "Unable to check upload status.");
+                setshowDangerAlert(true);
+                setDone(true);
+            });
+    }
+
     const Uploaded = () => {
         if (!scaleimg || !image) {
             setErrorMessage("Please wait for the scaled image preview to finish loading.");
@@ -139,6 +181,12 @@ function ImageScaling(props) {
         uploadData.append('image_scale', newimg);
         uploadData.append('scale', Number(scale) * (Number(autoscale) || 1));
 
+        setDone(false);
+        setUploadProgress(0);
+        setUploadStatus("Uploading...");
+        setshowDangerAlert(false);
+        setshowSuccessAlert(false);
+
         fetch('api/home/', {
             headers: {
                 'X-CSRFToken': csrftoken
@@ -150,15 +198,25 @@ function ImageScaling(props) {
                 if (!res.ok) {
                     throw new Error("Upload failed. Please try again.");
                 }
+                return res.json();
+            })
+            .then(data => {
+                if (data && data.id) {
+                    setUploadStatus("Queued for processing...");
+                    pollUploadJob(data.id);
+                    return;
+                }
+
                 setshowDangerAlert(false);
                 setshowSuccessAlert(true);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                setUploadProgress(100);
+                setUploadStatus("Completed");
+                setDone(true);
             })
             .catch(error => {
                 setErrorMessage(error.message || "Upload failed. Please try again.");
                 setshowDangerAlert(true);
+                setDone(true);
             })
     }
 
@@ -265,6 +323,23 @@ function ImageScaling(props) {
                     >
                         {errorMessage}
                     </Alert>
+                    {done == false && uploadStatus && (
+                        <div className="upload-progress">
+                            <div className="progress">
+                                <div
+                                    className="progress-bar progress-bar-striped progress-bar-animated bg-danger"
+                                    role="progressbar"
+                                    style={{ width: `${uploadProgress}%` }}
+                                    aria-valuenow={uploadProgress}
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                >
+                                    {uploadProgress}%
+                                </div>
+                            </div>
+                            <div className="upload-progress-status">{uploadStatus}</div>
+                        </div>
+                    )}
                     <Alert
                         show={showSuccessAlert}
                         variant="success"

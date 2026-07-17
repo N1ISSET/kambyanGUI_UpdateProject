@@ -764,12 +764,28 @@ class ImageView(generics.ListAPIView):
         return existing_image_queryset(self.request)
 
     def post(self, request, *args, **kwargs):
-        image_scale = request.data['image_scale']
-        scaling = float(request.data['scale'])
+        image_scale = request.data.get('image_scale')
+        if not image_scale:
+            return Response({'error': 'Image is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            scaling = float(request.data.get('scale', 1))
+        except (TypeError, ValueError):
+            return Response({'error': 'Scale must be a valid number'}, status=status.HTTP_400_BAD_REQUEST)
 
         clear_owned_data(request, Image_scale, Plot_Coordinate, Annotate_Data, Temp_Data)
-        create_image_record(request, image_scale, default_image_metadata(), scaling)
-        return HttpResponse({'message': 'Uploaded'}, status=200)
+        image = save_pending_upload_image(request, image_scale)
+        job = UploadTask.objects.create(
+            owner=request.user,
+            image=image,
+            kind=UploadTask.Kind.IMAGE,
+            status=UploadTask.Status.PENDING,
+            progress=0,
+            message='Queued for scaled upload processing',
+            preview_scale=scaling,
+        )
+        queue_upload_task(job)
+        return Response(upload_task_payload(job), status=status.HTTP_202_ACCEPTED)
     
     
 # To run the Tree detection

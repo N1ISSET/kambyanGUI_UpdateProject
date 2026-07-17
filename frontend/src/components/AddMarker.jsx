@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 // import { LatLng, LatLngExpression } from 'leaflet';
 import * as L from "leaflet";
-import { Marker, useMapEvents, Popup, Tooltip } from 'react-leaflet';
+import { Marker, useMapEvents, Popup } from 'react-leaflet';
 import jQuery from "jquery";
 import axios from "axios";
 
@@ -32,6 +32,85 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+const MarkerPoint = React.memo(function MarkerPoint({
+    pos,
+    idx,
+    selected,
+    markerRef,
+    metadata,
+    detectionToPreview,
+    detectionToSourcePixel,
+    removeMarker,
+    selectMarker,
+    handleDragEnd,
+}) {
+    const previewPosition = useMemo(() => detectionToPreview(pos), [detectionToPreview, pos]);
+
+    const getTooltipText = useCallback(() => {
+        if (metadata) {
+            const sourcePixel = detectionToSourcePixel(pos);
+            const xCoordinate = (metadata.X_Origin + (sourcePixel.x * metadata.Pixel_SizeX)).toFixed(2);
+            const yCoordinate = (metadata.Y_Origin + (sourcePixel.y * metadata.Pixel_SizeY)).toFixed(2);
+            return `ID:${idx + 1}, Coordinate: (${xCoordinate}, ${yCoordinate}), Pixel Value: (${sourcePixel.x.toFixed(2)}, ${sourcePixel.y.toFixed(2)})`;
+        }
+
+        return `ID:${idx + 1}, Position: (${previewPosition.lat.toFixed(2)}, ${previewPosition.lng.toFixed(2)})`;
+    }, [detectionToSourcePixel, idx, metadata, pos, previewPosition]);
+
+    const bindAndOpenTooltip = useCallback(() => {
+        const marker = markerRef.current;
+        if (!marker) return;
+        marker.bindTooltip(getTooltipText());
+        marker.openTooltip();
+    }, [getTooltipText, markerRef]);
+
+    const closeTooltip = useCallback(() => {
+        const marker = markerRef.current;
+        if (!marker) return;
+        marker.closeTooltip();
+        marker.unbindTooltip();
+    }, [markerRef]);
+
+    useEffect(() => {
+        if (selected) {
+            bindAndOpenTooltip();
+        } else {
+            closeTooltip();
+        }
+    }, [bindAndOpenTooltip, closeTooltip, selected]);
+
+    const eventHandlers = useMemo(() => ({
+        click: (e) => selectMarker(idx, e),
+        mouseover: bindAndOpenTooltip,
+        mouseout: () => {
+            if (!selected) closeTooltip();
+        },
+        contextmenu: (e) => {
+            L.DomEvent.preventDefault(e.originalEvent);
+            const marker = markerRef.current;
+            if (marker) marker.openPopup();
+        },
+        dblclick: (e) => {
+            selectMarker(idx, e);
+        },
+        dragend: handleDragEnd(idx),
+    }), [bindAndOpenTooltip, closeTooltip, handleDragEnd, idx, markerRef, selectMarker, selected]);
+
+    return (
+        <Marker
+            icon={selected ? selectedReddot : reddot}
+            position={previewPosition}
+            draggable={selected}
+            ref={(marker) => { markerRef.current = marker; }}
+            eventHandlers={eventHandlers}
+        >
+            <Popup>
+                <button onClick={() => removeMarker(pos)}>Remove point</button>
+            </Popup>
+        </Marker>
+    );
+});
 
 
 
@@ -171,44 +250,30 @@ function AddMarker(props) {
         setSelectedIdx(idx);
     }, []);
 
+    const getMarkerRef = useCallback((idx) => {
+        if (!markerRefs.current[idx]) {
+            markerRefs.current[idx] = React.createRef();
+        }
+        return markerRefs.current[idx];
+    }, []);
+
 
     return (
         <div>
             {coord.map((pos, idx) => (
-                <Marker
+                <MarkerPoint
                     key={idx}
-                    icon={selectedIdx === idx ? selectedReddot : reddot}
-                    position={detectionToPreview(pos)}
-                    draggable={selectedIdx === idx}
-                    ref={(m) => { if (m) markerRefs.current[idx] = m; }}
-                    eventHandlers={{
-                        click: (e) => selectMarker(idx, e),
-                        contextmenu: (e) => {
-                            L.DomEvent.preventDefault(e.originalEvent);
-                            const m = markerRefs.current[idx];
-                            if (m) m.openPopup();
-                        },
-                        dblclick: (e) => {
-                            selectMarker(idx, e);
-                        },
-                        dragend: handleDragEnd(idx),
-                    }}
-                >
-                    <Tooltip>
-                        {props.metadata ? (() => {
-                            const sourcePixel = detectionToSourcePixel(pos);
-                            return <>ID:{idx + 1}, Coordinate: ({((props.metadata.X_Origin) + (sourcePixel.x * props.metadata.Pixel_SizeX)).toFixed(2)},
-                                {((props.metadata.Y_Origin) + (sourcePixel.y * props.metadata.Pixel_SizeY)).toFixed(2)}), Pixel Value:
-                                ({sourcePixel.x.toFixed(2)},
-                                {sourcePixel.y.toFixed(2)})</>;
-                        })() : (
-                            <>ID:{idx + 1}, Position: ({detectionToPreview(pos).lat.toFixed(2)}, {detectionToPreview(pos).lng.toFixed(2)})</>
-                        )}
-                    </Tooltip>
-                    <Popup>
-                        <button onClick={() => removeMarker(pos)}>Remove point</button>
-                    </Popup>
-                </Marker>
+                    pos={pos}
+                    idx={idx}
+                    selected={selectedIdx === idx}
+                    markerRef={getMarkerRef(idx)}
+                    metadata={props.metadata}
+                    detectionToPreview={detectionToPreview}
+                    detectionToSourcePixel={detectionToSourcePixel}
+                    removeMarker={removeMarker}
+                    selectMarker={selectMarker}
+                    handleDragEnd={handleDragEnd}
+                />
             ))}
             {/* <Assign Coord={coord}/> */}
         </div>
